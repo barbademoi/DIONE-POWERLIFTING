@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0c0c0e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dione PL">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Dione Powerlifting</title>
+<style>
+  :root{
+    --bg:#0c0c0e; --panel:#16161a; --panel2:#1e1e24; --line:#2a2a31;
+    --txt:#f2f2f4; --mut:#9a9aa6; --red:#e11d2a; --red2:#ff3344; --green:#27c08a;
+    --rad:16px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    padding-bottom:84px; min-height:100vh;
+    -webkit-user-select:none; user-select:none;
+  }
+  #app{max-width:560px; margin:0 auto; padding:16px}
+  h1,h2,h3{margin:0 0 8px}
+  .mut{color:var(--mut)}
+  .center{text-align:center}
+  .card{background:var(--panel); border:1px solid var(--line); border-radius:var(--rad); padding:16px; margin-bottom:12px}
+  .row{display:flex; gap:10px; align-items:center}
+  .row.between{justify-content:space-between}
+  .grow{flex:1}
+  .pill{display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:700; background:var(--panel2); color:var(--mut)}
+  .pill.red{background:rgba(225,29,42,.15); color:var(--red2)}
+  .pill.green{background:rgba(39,192,138,.15); color:var(--green)}
+  .btn{
+    display:block; width:100%; padding:15px; border:none; border-radius:12px;
+    background:var(--red); color:#fff; font-size:16px; font-weight:800;
+    cursor:pointer; transition:filter .15s; margin-top:6px;
+  }
+  .btn:active{filter:brightness(.85)}
+  .btn.ghost{background:var(--panel2); color:var(--txt); border:1px solid var(--line)}
+  .btn.sm{padding:10px; font-size:14px; width:auto}
+  input,select{
+    width:100%; padding:13px; border-radius:12px; border:1px solid var(--line);
+    background:var(--panel2); color:var(--txt); font-size:16px; outline:none;
+  }
+  input:focus,select:focus{border-color:var(--red)}
+  label{display:block; font-size:13px; color:var(--mut); margin:10px 0 6px}
+  .logo{font-size:26px; font-weight:900; letter-spacing:.5px}
+  .logo .x{color:var(--red)}
+  .hr{height:1px; background:var(--line); margin:12px 0}
+
+  /* training day / exercises */
+  .ex{display:flex; align-items:center; gap:12px; padding:12px 0; border-bottom:1px solid var(--line)}
+  .ex:last-child{border-bottom:none}
+  .ex .info{flex:1; min-width:0}
+  .ex .name{font-weight:700}
+  .ex .sub{font-size:13px; color:var(--mut)}
+  .ex .load{text-align:right}
+  .ex .load b{font-size:18px}
+  .check{
+    width:26px;height:26px;border-radius:8px;border:2px solid var(--line);
+    flex:none; display:flex;align-items:center;justify-content:center; cursor:pointer; color:transparent; font-weight:900;
+  }
+  .check.on{background:var(--green); border-color:var(--green); color:#04130d}
+
+  .weekgrid{display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin-bottom:6px}
+  .wk{padding:10px 0; text-align:center; border-radius:10px; background:var(--panel2); border:1px solid var(--line); font-weight:800; cursor:pointer; font-size:14px}
+  .wk.cur{background:var(--red); border-color:var(--red); color:#fff}
+  .wk.done{border-color:var(--green); color:var(--green)}
+  .wk.deload{opacity:.85}
+
+  .seg{display:flex; gap:6px; background:var(--panel2); padding:5px; border-radius:12px; margin-bottom:12px}
+  .seg button{flex:1; padding:9px; border:none; background:transparent; color:var(--mut); font-weight:700; border-radius:9px; cursor:pointer; font-size:14px}
+  .seg button.on{background:var(--red); color:#fff}
+
+  /* bottom nav */
+  .nav{
+    position:fixed; left:0; right:0; bottom:0; z-index:50;
+    background:rgba(16,16,20,.96); backdrop-filter:blur(10px);
+    border-top:1px solid var(--line); display:flex;
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom)); max-width:560px; margin:0 auto;
+  }
+  .nav a{flex:1; text-align:center; color:var(--mut); text-decoration:none; font-size:11px; font-weight:700; cursor:pointer; padding:4px 0}
+  .nav a .ic{display:block; font-size:20px; line-height:1.2}
+  .nav a.on{color:var(--red2)}
+
+  .msg{background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--red); border-radius:12px; padding:12px 14px; margin-bottom:10px}
+  .msg .who{font-size:12px; color:var(--red2); font-weight:800; margin-bottom:3px}
+  .bignum{font-size:34px; font-weight:900; line-height:1}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+  .stat{background:var(--panel2); border:1px solid var(--line); border-radius:12px; padding:12px; text-align:center}
+  .stat .v{font-size:20px; font-weight:900}
+  .stat .l{font-size:11px; color:var(--mut)}
+  .toast{position:fixed; left:50%; bottom:96px; transform:translateX(-50%); background:#fff; color:#111; font-weight:800; padding:10px 16px; border-radius:999px; opacity:0; transition:opacity .25s; z-index:99; font-size:14px}
+  .toast.show{opacity:1}
+  .fade{animation:fade .25s ease}
+  @keyframes fade{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="nav"></div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* ============================================================
+   DIONE POWERLIFTING — PWA (vanilla JS, dados embutidos)
+   Estado em localStorage (prefixo dione_demo_)
+   ============================================================ */
+
+/* ---------- storage helpers ---------- */
+const PFX='dione_demo_';
+const DB={
+  get(k,def){ try{ const v=localStorage.getItem(PFX+k); return v==null?def:JSON.parse(v);}catch(e){return def;} },
+  set(k,v){ localStorage.setItem(PFX+k, JSON.stringify(v)); },
+  del(k){ localStorage.removeItem(PFX+k); }
+};
+
+/* ---------- cálculo de carga ---------- */
+// arredonda a carga para o múltiplo mais próximo (anilhas)
+function loadFor(oneRM, pct, round){
+  round = round || 2.5;
+  const raw = oneRM * (pct/100);
+  return Math.round(raw/round)*round;
+}
+// 1RM estimado (Epley)
+function epley(weight, reps){
+  return Math.round(weight * (1 + reps/30));
+}
+
+/* ---------- LIFTS / TÉCNICAS / DIONE ---------- */
+const LIFTS=[
+  {id:'agacho', nome:'Agachamento', emoji:'🏋️'},
+  {id:'supino', nome:'Supino',      emoji:'💪'},
+  {id:'terra',  nome:'Terra',       emoji:'🪨'},
+];
+const LIFT={agacho:LIFTS[0], supino:LIFTS[1], terra:LIFTS[2]};
+
+const TEC=[
+  {lift:'Agachamento', dicas:[
+    'Barra apoiada no trapézio (low bar) ou na deltoide (high bar) — escolha e padronize.',
+    'Pés na largura dos ombros, ponta levemente aberta. Joelho segue a linha do pé.',
+    'Inspire e segure (Valsalva), expanda o abdômen contra o cinturão.',
+    'Quebre quadril e joelho juntos; desça até a coxa abaixo da paralela.',
+    'Suba empurrando o chão; peito alto, sem deixar o quadril disparar antes.'
+  ]},
+  {lift:'Supino', dicas:[
+    'Escápulas retraídas e deprimidas (peito pra fora), pés firmes no chão.',
+    'Pegada um pouco mais aberta que a largura dos ombros; punho neutro sobre o cotovelo.',
+    'Desça a barra na linha do mamilo, cotovelos ~45–70°, controlando.',
+    'Encoste leve no peito, pause se for competição, e empurre em leve diagonal pra trás.',
+    'Mantenha a tensão de pernas (leg drive) sem perder o apoio escapular.'
+  ]},
+  {lift:'Terra', dicas:[
+    'Barra sobre o meio do pé; ombros levemente à frente da barra.',
+    'Pegada na largura do quadril (convencional). Tire a folga da barra antes de puxar.',
+    'Costas neutras e firmes; "engate" a lat (axila apertando a barra).',
+    'Empurre o chão com as pernas; barra colada no corpo o tempo todo.',
+    'Trave estendendo quadril e joelho juntos — sem hiperextender a lombar.'
+  ]},
+];
+
+const DIONE=[
+  {who:'Dione César', txt:'Bem-vinda(o) ao programa. 36 semanas. A constância vence a intensidade — apareça todo treino.'},
+  {who:'Dione César', txt:'Bloco 1 (sem 1–12): Acumulação. Foco em técnica e volume. Carga moderada, muita execução limpa.'},
+  {who:'Dione César', txt:'Bloco 2 (sem 13–24): Intensificação. Subimos a intensidade. Aquecimento bem feito é inegociável.'},
+  {who:'Dione César', txt:'Bloco 3 (sem 25–33): Peaking. Carga alta, volume menor. Descanse entre as séries pesadas (3–5 min).'},
+  {who:'Dione César', txt:'Bloco 4 (sem 34–36): Taper e Teste. Vamos buscar PRs nos três movimentos. Confie no processo.'},
+  {who:'Dione César', txt:'Semana de deload = recuperação ativa, não folga. Mantenha a técnica afiada com carga leve.'},
+];
+
+/* ---------- GERADOR DO PROGRAMA (36 semanas) ---------- */
+// Estrutura semanal fixa (3 dias). Cada dia tem 1 principal + acessórios.
+// As % de 1RM ondulam e progridem por bloco; semanas múltiplas de 4 são deload.
+function genPrograma(){
+  const weeks=[];
+  // tabela de intensidade do principal por bloco
+  function mainSet(blockPct, deload){
+    if(deload) return {sets:3, reps:5, pct:blockPct-15};
+    return blockPct;
+  }
+  for(let w=1; w<=36; w++){
+    const deload = (w%4===0) && w<34;       // deload a cada 4 sem, menos no peaking final
+    let phase, base;
+    if(w<=12){ phase='Acumulação'; base=65 + Math.floor((w-1)/1)*1; }       // 65 -> ~76
+    else if(w<=24){ phase='Intensificação'; base=74 + (w-13);  }            // 74 -> 85
+    else if(w<=33){ phase='Peaking'; base=84 + (w-25);  }                   // 84 -> 92
+    else { phase='Taper / Teste'; base=88 + (w-34)*2; }                     // 88,90,92(teste)
+    if(base>95) base=95;
+
+    // principal: séries x reps conforme bloco
+    let sets,reps;
+    if(phase==='Acumulação'){ sets=5; reps=5; }
+    else if(phase==='Intensificação'){ sets=5; reps=3; }
+    else if(phase==='Peaking'){ sets=4; reps=2; }
+    else { sets= (w===36?1:3); reps=(w===36?1:2); }
+    if(deload){ sets=3; reps=5; }
+    const mp = deload ? Math.max(55, base-18) : base;
+    const teste = (w===36);
+
+    const mkMain=(liftId,pct)=>({lift:liftId, sets, reps, pct, principal:true, teste});
+    const acc=(nome,sets,reps)=>({nome,sets,reps});
+
+    // 3 dias: A=Agacho+Supino sec, B=Terra+Acessórios, C=Supino+Agacho sec
+    const days=[
+      {nome:'Dia A — Agachamento', ex:[
+        mkMain('agacho', mp),
+        {lift:'supino', sets:3, reps:8, pct:Math.round(mp*0.78), principal:false},
+        acc('Leg press', 3, '10–12'),
+        acc('Prancha', 3, '40s'),
+      ]},
+      {nome:'Dia B — Terra', ex:[
+        mkMain('terra', mp),
+        acc('Remada curvada', 4, '8'),
+        acc('Puxada / Barra fixa', 3, '8–10'),
+        acc('Rosca + Tríceps', 3, '12'),
+      ]},
+      {nome:'Dia C — Supino', ex:[
+        mkMain('supino', mp),
+        {lift:'agacho', sets:3, reps:6, pct:Math.round(mp*0.80), principal:false},
+        acc('Desenvolvimento', 3, '8'),
+        acc('Elevação lateral', 3, '15'),
+      ]},
+    ];
+    weeks.push({week:w, phase, deload, teste, base:mp, days});
+  }
+  return weeks;
+}
+const PROG=genPrograma();
+
+/* ---------- estado de navegação ---------- */
+let TAB='treino';
+let curWeek = DB.get('curweek', 1);
+
+/* ============================================================
+   VIEWS (retornam string HTML)
+   ============================================================ */
+function loginView(){
+  return `
+  <div class="center fade" style="padding-top:8vh">
+    <div class="logo" style="font-size:32px">DIONE<span class="x"> POWERLIFTING</span></div>
+    <p class="mut">Seu treino calculado pelo seu 1RM — 36 semanas.</p>
+    <div class="card" style="margin-top:24px; text-align:left">
+      <label>Seu nome</label>
+      <input id="i-nome" placeholder="Ex.: Dione" autocomplete="name">
+      <button class="btn" onclick="doLogin()">Entrar</button>
+      <p class="mut" style="font-size:12px; text-align:center; margin:10px 0 0">
+        Sem senha. Seus dados ficam salvos neste aparelho.
+      </p>
+    </div>
+  </div>`;
+}
+
+function onboardView(){
+  const p = DB.get('profile',{});
+  return `
+  <div class="fade">
+    <h1>Vamos calibrar 👊</h1>
+    <p class="mut">Informe seu nível e seu 1RM (máximo de 1 repetição) em cada movimento. É com base nisso que o app calcula a carga de cada treino.</p>
+    <div class="card">
+      <label>Nível</label>
+      <select id="i-nivel">
+        <option value="iniciante">Iniciante</option>
+        <option value="intermediario" selected>Intermediário</option>
+        <option value="avancado">Avançado</option>
+      </select>
+
+      <label>1RM Agachamento (kg)</label>
+      <input id="i-agacho" type="number" inputmode="decimal" placeholder="Ex.: 120" value="${p.agacho||''}">
+      <label>1RM Supino (kg)</label>
+      <input id="i-supino" type="number" inputmode="decimal" placeholder="Ex.: 80" value="${p.supino||''}">
+      <label>1RM Terra (kg)</label>
+      <input id="i-terra" type="number" inputmode="decimal" placeholder="Ex.: 150" value="${p.terra||''}">
+
+      <div class="hr"></div>
+      <p class="mut" style="font-size:13px">Não sabe seu 1RM? Use um peso que você fez por algumas reps:</p>
+      <div class="row">
+        <input id="c-peso" type="number" inputmode="decimal" placeholder="Peso" style="flex:2">
+        <input id="c-reps" type="number" inputmode="numeric" placeholder="Reps" style="flex:1">
+        <button class="btn sm ghost" onclick="calcRM()" style="margin-top:0; flex:none">Calcular</button>
+      </div>
+      <p id="c-res" class="mut center" style="font-size:13px; margin-top:8px"></p>
+
+      <button class="btn" onclick="saveOnboard()">Começar o programa</button>
+    </div>
+  </div>`;
+}
+
+function treinoView(){
+  const p=DB.get('profile',{});
+  const wk=PROG[curWeek-1];
+  const doneSets=DB.get('sessions',{});
+  // grid de semanas
+  let grid='<div class="weekgrid">';
+  for(let i=1;i<=36;i++){
+    const d=PROG[i-1];
+    const isDone = weekDone(i);
+    grid+=`<div class="wk ${i===curWeek?'cur':''} ${isDone?'done':''} ${d.deload?'deload':''}" onclick="setWeek(${i})">${i}</div>`;
+  }
+  grid+='</div>';
+
+  let daysHtml='';
+  wk.days.forEach((day,di)=>{
+    let exs='';
+    day.ex.forEach((e,ei)=>{
+      const key=`${curWeek}-${di}-${ei}`;
+      const on=doneSets[key];
+      let right, sub;
+      if(e.lift){
+        const rm=Number(p[e.lift])||0;
+        const carga=rm?loadFor(rm,e.pct,2.5):0;
+        sub=`${e.sets} × ${e.reps} • ${e.pct}% 1RM` + (e.teste?' • 🎯 TESTE':'') + (e.principal?'':' (secundário)');
+        right=`<div class="load"><b>${e.teste?'PR':carga+' kg'}</b><div class="sub">${e.teste?'busque o máximo':rm?'':'defina 1RM'}</div></div>`;
+      }else{
+        sub=`${e.sets} × ${e.reps}`;
+        right=`<div class="load"><span class="pill">acessório</span></div>`;
+      }
+      const nome = e.lift ? (LIFT[e.lift].emoji+' '+LIFT[e.lift].nome) : e.nome;
+      exs+=`<div class="ex">
+        <div class="check ${on?'on':''}" onclick="toggleSet('${key}')">✓</div>
+        <div class="info"><div class="name">${nome}</div><div class="sub">${sub}</div></div>
+        ${right}
+      </div>`;
+    });
+    daysHtml+=`<div class="card"><h3>${day.nome}</h3>${exs}</div>`;
+  });
+
+  return `
+  <div class="fade">
+    <div class="row between">
+      <div><h1 style="margin:0">Semana ${curWeek}</h1>
+        <span class="pill ${wk.deload?'green':'red'}">${wk.phase}${wk.deload?' • DELOAD':''}</span>
+      </div>
+      <div class="center"><div class="bignum">${wk.base}<span style="font-size:14px">%</span></div><div class="mut" style="font-size:11px">intensidade</div></div>
+    </div>
+    <div class="hr"></div>
+    ${grid}
+    ${daysHtml}
+    <button class="btn ghost" onclick="markWeekDone()">Marcar semana ${curWeek} como concluída ✅</button>
+  </div>`;
+}
+
+function tecView(){
+  let html='<div class="fade"><h1>Técnica</h1><p class="mut">Os pontos que o Dione mais corrige nos três movimentos.</p>';
+  TEC.forEach(t=>{
+    html+=`<div class="card"><h3>${t.lift}</h3>`;
+    t.dicas.forEach((d,i)=>{ html+=`<div class="ex"><div class="check" style="background:var(--panel2);color:var(--red2);border-color:var(--line)">${i+1}</div><div class="info"><div class="sub" style="color:var(--txt)">${d}</div></div></div>`; });
+    html+='</div>';
+  });
+  html+='</div>';
+  return html;
+}
+
+function dioneView(){
+  let html='<div class="fade"><h1>Recados do Dione</h1>';
+  DIONE.forEach(m=>{ html+=`<div class="msg"><div class="who">${m.who}</div>${m.txt}</div>`; });
+  html+='</div>';
+  return html;
+}
+
+function perfilView(){
+  const p=DB.get('profile',{});
+  const login=DB.get('login',{});
+  const done=Object.keys(DB.get('weeksdone',{})).length;
+  const total = Object.values(DB.get('sessions',{})).filter(Boolean).length;
+  const wilks = (Number(p.agacho)||0)+(Number(p.supino)||0)+(Number(p.terra)||0);
+  return `
+  <div class="fade">
+    <h1>Olá, ${login.nome||'atleta'} 👋</h1>
+    <div class="grid3">
+      <div class="stat"><div class="v">${done}/36</div><div class="l">semanas</div></div>
+      <div class="stat"><div class="v">${total}</div><div class="l">séries ✓</div></div>
+      <div class="stat"><div class="v">${wilks}</div><div class="l">total (kg)</div></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3>Seus 1RM</h3>
+      <label>Nível</label>
+      <select id="p-nivel">
+        ${['iniciante','intermediario','avancado'].map(n=>`<option value="${n}" ${p.nivel===n?'selected':''}>${n[0].toUpperCase()+n.slice(1)}</option>`).join('')}
+      </select>
+      <label>Agachamento (kg)</label><input id="p-agacho" type="number" value="${p.agacho||''}">
+      <label>Supino (kg)</label><input id="p-supino" type="number" value="${p.supino||''}">
+      <label>Terra (kg)</label><input id="p-terra" type="number" value="${p.terra||''}">
+      <button class="btn" onclick="saveProfile()">Salvar 1RM</button>
+    </div>
+    <div class="card">
+      <h3>Conta</h3>
+      <button class="btn ghost" onclick="exportData()">Exportar meus dados</button>
+      <button class="btn ghost" onclick="resetProgress()" style="color:var(--red2)">Zerar progresso</button>
+      <button class="btn ghost" onclick="logout()">Sair</button>
+    </div>
+    <p class="center mut" style="font-size:12px">Dione Powerlifting • PWA • v1</p>
+  </div>`;
+}
+
+/* ============================================================
+   AÇÕES (funções globais chamadas por onclick)
+   ============================================================ */
+function doLogin(){
+  const nome=(document.getElementById('i-nome').value||'').trim();
+  if(!nome){ toast('Digite seu nome'); return; }
+  DB.set('login',{nome, ts:Date.now()});
+  render();
+}
+function calcRM(){
+  const w=Number(document.getElementById('c-peso').value);
+  const r=Number(document.getElementById('c-reps').value);
+  const el=document.getElementById('c-res');
+  if(!w||!r){ el.textContent='Preencha peso e reps.'; return; }
+  el.innerHTML='1RM estimado ≈ <b style="color:var(--txt)">'+epley(w,r)+' kg</b> (Epley)';
+}
+function saveOnboard(){
+  const prof={
+    nivel:document.getElementById('i-nivel').value,
+    agacho:Number(document.getElementById('i-agacho').value)||0,
+    supino:Number(document.getElementById('i-supino').value)||0,
+    terra:Number(document.getElementById('i-terra').value)||0,
+  };
+  if(!prof.agacho||!prof.supino||!prof.terra){ toast('Preencha os 3 valores de 1RM'); return; }
+  DB.set('profile',prof);
+  toast('Programa liberado! 💪');
+  TAB='treino'; render();
+}
+function saveProfile(){
+  const prof=DB.get('profile',{});
+  prof.nivel=document.getElementById('p-nivel').value;
+  prof.agacho=Number(document.getElementById('p-agacho').value)||0;
+  prof.supino=Number(document.getElementById('p-supino').value)||0;
+  prof.terra=Number(document.getElementById('p-terra').value)||0;
+  DB.set('profile',prof);
+  toast('1RM atualizado'); render();
+}
+function setWeek(w){ curWeek=w; DB.set('curweek',w); render(); window.scrollTo(0,0); }
+function toggleSet(key){
+  const s=DB.get('sessions',{}); s[key]=!s[key];
+  if(!s[key]) delete s[key];
+  DB.set('sessions',s); render();
+}
+function weekDone(w){ return !!DB.get('weeksdone',{})[w]; }
+function markWeekDone(){
+  const wd=DB.get('weeksdone',{}); wd[curWeek]=Date.now(); DB.set('weeksdone',wd);
+  // registra no histórico
+  const h=DB.get('history',[]); h.push({week:curWeek, ts:Date.now()}); DB.set('history',h);
+  toast('Semana '+curWeek+' concluída! 🎉');
+  if(curWeek<36){ setWeek(curWeek+1); } else { render(); }
+}
+function resetProgress(){
+  if(!confirm('Isso apaga todo o seu progresso (semanas, séries marcadas e histórico). Seus 1RM continuam. Confirmar?')) return;
+  DB.del('sessions'); DB.del('weeksdone'); DB.del('history'); DB.set('curweek',1); curWeek=1;
+  toast('Progresso zerado'); render();
+}
+function exportData(){
+  const data={};
+  for(const k of ['login','profile','sessions','weeksdone','history','curweek']) data[k]=DB.get(k,null);
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='dione-powerlifting-backup.json'; a.click();
+}
+function logout(){
+  if(!confirm('Sair? Seus dados continuam salvos neste aparelho.')) return;
+  DB.del('login'); render();
+}
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),1600);
+}
+
+/* ============================================================
+   RENDER + NAV
+   ============================================================ */
+function render(){
+  const app=document.getElementById('app');
+  const nav=document.getElementById('nav');
+  const login=DB.get('login',null);
+  const profile=DB.get('profile',null);
+
+  if(!login){ app.innerHTML=loginView(); nav.innerHTML=''; return; }
+  if(!profile){ app.innerHTML=onboardView(); nav.innerHTML=''; return; }
+
+  let html;
+  if(TAB==='treino') html=treinoView();
+  else if(TAB==='tec') html=tecView();
+  else if(TAB==='dione') html=dioneView();
+  else if(TAB==='perfil') html=perfilView();
+  app.innerHTML=html;
+
+  const tabs=[
+    ['treino','🏋️','Treino'],
+    ['tec','📐','Técnica'],
+    ['dione','💬','Dione'],
+    ['perfil','👤','Perfil'],
+  ];
+  nav.innerHTML='<div class="nav">'+tabs.map(t=>
+    `<a class="${TAB===t[0]?'on':''}" onclick="go('${t[0]}')"><span class="ic">${t[1]}</span>${t[2]}</a>`
+  ).join('')+'</div>';
+}
+function go(tab){ TAB=tab; render(); window.scrollTo(0,0); }
+
+/* ---------- boot ---------- */
+render();
+
+/* ---------- service worker ---------- */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>

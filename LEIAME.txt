@@ -1,0 +1,27 @@
+DIONE POWERLIFTING — app (PWA)
+
+COMO PUBLICAR NA VERCEL (repositorio DIONE-POWERLIFTING):
+   1. Acesse vercel.com e faca login.
+   2. Add New... > Project > Import do repositorio DIONE-POWERLIFTING.
+   3. Framework Preset: "Other" (NAO e Next.js). Sem build. Output: raiz.
+   4. Deploy. Pronto: a cada "git push" no repo, a Vercel publica sozinho.
+
+NO CELULAR (instalar como app):
+   - Abrir o link .vercel.app no Chrome (Android) ou Safari (iPhone).
+   - Tocar no menu do navegador > "Adicionar a Tela de Inicio".
+   - Vira um icone de app e abre em tela cheia. Funciona offline depois da 1a vez.
+
+COMO USAR O APP:
+   - Entrar com o nome (sem senha).
+   - Informar nivel + 1RM de Agachamento, Supino e Terra (obrigatorio).
+   - O app calcula a carga de cada serie a partir do seu 1RM, semana a semana (36 semanas).
+   - Marcar as series feitas no checkbox; marcar a semana como concluida ao terminar.
+
+IMPORTANTE (dados):
+   - O progresso fica salvo SO naquele navegador/aparelho (localStorage).
+   - Trocar de aparelho, limpar dados do navegador ou usar outro navegador = perde o progresso.
+   - Da pra exportar um backup em Perfil > "Exportar meus dados".
+
+AO ALTERAR O APP:
+   - Mudou o index.html? Abra o sw.js e suba a versao do cache:
+     const CACHE='dione-pl-v2';  (depois v3, v4...) -> forca os celulares a baixarem a versao nova.
