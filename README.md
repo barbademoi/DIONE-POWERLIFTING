@@ -13,11 +13,13 @@ navegador (`localStorage`, prefixo `dione_demo_`).
 - `vercel.json` — deploy estático + headers do PWA
 
 ## Como funciona (resumo técnico)
-- **Cálculo de carga:** `loadFor(1RM, %, arredondamento)` (arredonda para múltiplos de 2,5 kg).
-- **Estimativa de 1RM:** Epley → `1RM = peso × (1 + reps/30)`.
-- **Programa:** gerado em `genPrograma()` — 4 blocos (Acumulação, Intensificação, Peaking, Taper/Teste),
-  3 dias por semana, com deload a cada 4 semanas e teste de PR na semana 36.
-- **Views:** `loginView`, `onboardView`, `treinoView`, `tecView`, `dioneView`, `perfilView`.
+- **Cálculo de carga:** `loadFor(1RM, %, arredondamento)` — arredondamento configurável (1 / 2,5 / 5 kg).
+- **Estimativa de 1RM:** `peso × (1 + reps/30)` (Epley), na calculadora do onboarding.
+- **Programa:** as 36 semanas vêm do objeto `const J` (embutido no `index.html`), com fases
+  Iniciante / Intermediário / Avançado, dias, séries, percentuais e complementares.
+- **Telas:** `loginView`, `onboardView`, `treinoView`, `tecView` (técnicas + vídeos/avatares),
+  `dioneView` (vídeo do YouTube) e `perfilView` (1RM, arredondamento, gráfico de evolução, RPE).
+- **Estado:** `localStorage` com prefixo `dione_demo_` (chaves: `session`, `profile`, `history`, `sessions`, `dione`).
 
 ## Publicar na Vercel (uma vez)
 1. vercel.com → **Add New… → Project** → Import do repositório `DIONE-POWERLIFTING`.
