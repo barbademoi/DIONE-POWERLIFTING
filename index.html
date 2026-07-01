@@ -94,7 +94,7 @@ function shortName(n){return n.split(' /')[0].split(' (')[0]}
 const K='dione_demo_';
 const load=(k,d)=>{try{const v=localStorage.getItem(K+k);return v==null?d:JSON.parse(v)}catch{return d}};
 const save=(k,v)=>localStorage.setItem(K+k,JSON.stringify(v));
-let S={session:load('session',false),profile:load('profile',{rounding:2.5,currentWeek:1,oneRm:{}}),history:load('history',[]),sessions:load('sessions',{}),dione:load('dione',''),tab:'treino',techCat:'principais',openDay:null};
+let S={session:load('session',false),profile:load('profile',{rounding:2.5,currentWeek:1,oneRm:{},sex:'m'}),history:load('history',[]),sessions:load('sessions',{}),dione:load('dione',''),tab:'treino',techCat:'principais',openDay:null};
 function persist(){save('session',S.session);save('profile',S.profile);save('history',S.history);save('sessions',S.sessions);save('dione',S.dione)}
 const round=(r,i)=>i<=0?Math.round(r):Math.round(r/i)*i;
 const loadFor=(o,p,i)=>round(o*p/100,i);
@@ -251,7 +251,7 @@ function perfilView(){const o=S.profile.oneRm;
  return h;
 }
 function saveRm(l){const v=parseFloat((document.getElementById('pf_'+l).value||'').replace(',','.'));if(!v){alert('Informe um valor.');return}setOneRm(l,v);render()}function logout(){S.session=false;persist();render()}
-function resetDemo(){['session','profile','history','sessions','dione'].forEach(k=>localStorage.removeItem(K+k));S.session=false;S.profile={rounding:2.5,currentWeek:1,oneRm:{}};S.history=[];S.sessions={};S.dione='';S.obVals={};S.estOpen=false;S.tab='treino';S.techCat='principais';S.openDay=null;render();window.scrollTo(0,0)}
+function resetDemo(){['session','profile','history','sessions','dione'].forEach(k=>localStorage.removeItem(K+k));S.session=false;S.profile={rounding:2.5,currentWeek:1,oneRm:{},sex:'m'};S.history=[];S.sessions={};S.dione='';S.obVals={};S.estOpen=false;S.tab='treino';S.techCat='principais';S.openDay=null;render();window.scrollTo(0,0)}
 
 /* ---------- SHELL ---------- */
 function tabbar(){const t=[['treino','Treino','📋'],['tecnicas','Técnicas','🎯'],['dione','Dione','▶️'],['perfil','Perfil','👤']];
