@@ -1,0 +1,7 @@
+{
+  "name": "dione-powerlifting",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2"
+  }
+}
