@@ -290,6 +290,7 @@ async function entrar(){
 async function boot(){
   const { data:{ session } } = await SUPA.auth.getSession();
   if(!session){ document.getElementById('app').innerHTML = accessView(); return; }
+  if(!S.session){ S.session=true; persist(); }
   render();
 }
 boot();
