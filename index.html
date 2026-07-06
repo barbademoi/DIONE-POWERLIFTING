@@ -252,8 +252,8 @@ footer a{color:var(--red2);font-weight:700}
     <div class="offer">
       <span class="tag">Acesso completo</span>
       <p class="muted" style="text-transform:uppercase;letter-spacing:1px;font-size:12px">Programa Dione Powerlifting</p>
-      <div class="price"><span class="ph">R$ XX</span></div>
-      <p class="muted" style="font-size:13px"><span class="ph">[Definir preço e condição: à vista / parcelado / assinatura]</span></p>
+      <div class="price">R$ 97</div>
+      <p class="muted" style="font-size:13px">Pagamento único · acesso ao app com todas as 36 semanas</p>
       <ul>
         <li>App completo com <b>36 semanas</b> de treino</li>
         <li>Carga calculada pelo seu <b>1RM</b> em cada série</li>
@@ -301,7 +301,7 @@ footer a{color:var(--red2);font-weight:700}
 <script>
 // Liga os botões de compra ao checkout do Hotmart.
 // >>> Troque a linha abaixo pelo seu link real do Hotmart <<<
-const CHECKOUT = "COLE_O_LINK_DO_HOTMART_AQUI";
+const CHECKOUT = "https://pay.hotmart.com/J106625845E?off=zqmjp9c4";
 document.querySelectorAll('[data-buy]').forEach(function(a){
   if(/^https?:\/\//.test(CHECKOUT)){ a.setAttribute('href', CHECKOUT); a.setAttribute('target','_blank'); a.setAttribute('rel','noopener'); }
   else { a.addEventListener('click', function(e){ if(a.getAttribute('href')==='#'||a.getAttribute('href')==='#oferta'){return;} e.preventDefault(); }); }
