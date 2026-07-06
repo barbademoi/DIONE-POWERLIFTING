@@ -135,7 +135,9 @@ function onboardView(){const info=levelInfo();return `<div class="auth">
 <p class="muted" style="margin:0 0 6px">Três passos rápidos definem todo o cálculo das suas cargas — por isso são obrigatórios.</p>
 <div class="card" style="display:flex;flex-direction:column;gap:16px">
 <div><div class="lbl">1 · Sobre você</div>
-<div class="row" style="margin:0"><span style="font-weight:700">Sexo</span><div class="seg" style="margin:0;max-width:210px"><button class="${S.profile.sex==='m'?'on':''}" onclick="setSex('m')">Masc.</button><button class="${S.profile.sex==='f'?'on':''}" onclick="setSex('f')">Fem.</button></div></div>
+<div class="row" style="margin:0"><span style="font-weight:700">Nome</span><input id="ob_name" placeholder="Seu nome" value="${S.obVals&&S.obVals.name?esc(S.obVals.name):''}" style="width:150px"></div>
+<div class="row" style="margin:8px 0 0"><span style="font-weight:700">Idade</span><input id="ob_age" inputmode="numeric" placeholder="anos" value="${S.obVals&&S.obVals.age?esc(S.obVals.age):''}" style="width:120px"></div>
+<div class="row" style="margin:8px 0 0"><span style="font-weight:700">Sexo</span><div class="seg" style="margin:0;max-width:210px"><button class="${S.profile.sex==='m'?'on':''}" onclick="setSex('m')">Masc.</button><button class="${S.profile.sex==='f'?'on':''}" onclick="setSex('f')">Fem.</button></div></div>
 <div class="row" style="margin:8px 0 0"><span style="font-weight:700">Peso corporal</span><input id="ob_bw" inputmode="decimal" placeholder="kg" value="${S.obVals&&S.obVals.bw?S.obVals.bw:''}" style="width:120px"></div></div>
 <div><div class="lbl">2 · Seu 1RM (obrigatório)</div>
 <p class="dim" style="font-size:12px;margin:0 0 8px;line-height:1.5"><b style="color:var(--chalk)">O que é 1RM?</b> É a maior carga que você consegue levantar <b>uma única vez</b>, com boa técnica, em cada exercício. Todo o cálculo das séries parte desse número.</p>
@@ -148,19 +150,25 @@ ${estPanel()}</div>
 <p class="dim" style="font-size:11px;margin:6px 0 0">${S.profile.level?((S.levelManual?'Escolhido por você. ':('Sugerido pelo seu DOTS'+(info?' ≈ '+info.dots:'')+'. '))+levelHint(S.profile.level)):'Preencha os dados acima e toque em “Calcular meu nível”, ou escolha manualmente.'}</p></div>
 <button class="btnP" onclick="saveOnboard()">Começar treino</button>
 </div></div>`}
-function captureOb(){S.obVals=S.obVals||{};['squat','bench','deadlift','bw'].forEach(l=>{const el=document.getElementById('ob_'+l);if(el)S.obVals[l]=el.value})}
+function captureOb(){S.obVals=S.obVals||{};['squat','bench','deadlift','bw','name','age'].forEach(l=>{const el=document.getElementById('ob_'+l);if(el)S.obVals[l]=el.value})}
 function pickLevel(k){captureOb();S.profile.level=k;S.levelManual=true;render()}
 function toggleEst(){captureOb();S.estOpen=!S.estOpen;render()}
 function calcEst(){const l=document.getElementById('est_lift').value;const w=parseFloat((document.getElementById('est_w').value||'').replace(',','.'));const r=parseInt(document.getElementById('est_r').value||'0',10);if(!(w>0)||!(r>0)){alert('Preencha o peso e as repetições.');return}const est=r===1?w:w*(1+r/30);const v=Math.round(est*2)/2;captureOb();S.obVals=S.obVals||{};S.obVals[l]=String(v);S.estOpen=false;render()}
-function saveOnboard(){captureOb();if(!S.profile.sex){alert('Selecione o sexo.');return}const bw=parseFloat((S.obVals.bw||'').replace(',','.'));if(!(bw>0)){alert('Informe seu peso corporal.');return}const miss=['squat','bench','deadlift'].filter(l=>!(parseFloat((S.obVals[l]||'').replace(',','.'))>0));if(miss.length){alert('Informe seu 1RM nos três exercícios. Se não souber, toque em "Não sei meu 1RM — calcular".');return}if(!S.profile.level){S.profile.level=suggestLevel()||'ini'}['squat','bench','deadlift'].forEach(l=>{const v=parseFloat((S.obVals[l]||'').replace(',','.'));setOneRm(l,v)});S.profile.bw=bw;S.profile.currentWeek=phaseStart(S.profile.level);S.profile.achieved=[S.profile.level];S.obVals={};S.estOpen=false;persist();render()}
+function saveOnboard(){captureOb();if(!(S.obVals.name||'').trim()){alert('Digite seu nome.');return}if(!S.profile.sex){alert('Selecione o sexo.');return}const bw=parseFloat((S.obVals.bw||'').replace(',','.'));if(!(bw>0)){alert('Informe seu peso corporal.');return}const miss=['squat','bench','deadlift'].filter(l=>!(parseFloat((S.obVals[l]||'').replace(',','.'))>0));if(miss.length){alert('Informe seu 1RM nos três exercícios. Se não souber, toque em "Não sei meu 1RM — calcular".');return}if(!S.profile.level){S.profile.level=suggestLevel()||'ini'}['squat','bench','deadlift'].forEach(l=>{const v=parseFloat((S.obVals[l]||'').replace(',','.'));setOneRm(l,v)});S.profile.name=(S.obVals.name||'').trim();S.profile.age=parseInt(S.obVals.age,10)||null;S.profile.bw=bw;S.profile.currentWeek=phaseStart(S.profile.level);S.profile.achieved=[S.profile.level];S.obVals={};S.estOpen=false;persist();render()}
+
+/* ---------- ALUNO ---------- */
+function displayName(){const n=(S.profile.name||'').trim();if(n)return n.split(/\s+/)[0];const e=((S.email||'').split('@')[0]||'').replace(/[._-]+/g,' ').trim();if(e)return e.charAt(0).toUpperCase()+e.slice(1);return 'Atleta'}
+function motivMsg(){const m=['Foco na técnica e confia no processo.','Cada série te deixa mais forte. Bora!','Consistência vence talento. Segue firme.','Hoje é dia de somar — respeita o percentual.','Disciplina é liberdade. Vamos pro treino.','O peso não se move sozinho. Vai lá!','Progresso é progresso, por menor que seja.','Mais forte que ontem. Sempre.'];return m[(S.profile.currentWeek||1)%m.length]}
 
 /* ---------- TREINO ---------- */
 function chip(s,base,inc){const kg=base?s.pcts.map(p=>fmt(loadFor(base,p,inc))).join(' / ')+' ':'— ';const u=base?'kg':'def. 1RM';const rp=s.count>1?`${s.reps} × ${s.count}`:`${s.reps} ${s.reps===1?'rep':'reps'}`;
 return `<div class="chip ${s.top?'top':''}"><span class="pc">${s.pcts.join('% / ')}%</span><span class="kg">${kg}<span class="rp" style="font-family:Barlow">${u}</span></span><span class="rp">${rp}</span>${s.note?`<span class="nt">${esc(s.note)}</span>`:''}</div>`}
 function treinoView(){
  const w=Math.min(Math.max(S.profile.currentWeek,1),TOTAL);const wk=WEEKS[w-1];const inc=S.profile.rounding;
- let h=`<div class="top"><div class="kicker">Dione Atleta Powerlifting</div></div>
- <div class="seg" style="margin:8px 0 0">${PHASES.map(p=>`<button class="${curPhase()===p.key?'on':''}" onclick="goPhase('${p.key}')">${shortName(p.name)}</button>`).join('')}</div>
+ let h=`<div class="top"><div class="kicker">Dione Atleta Powerlifting</div>
+ <div class="disp" style="font-size:26px;margin:4px 0 2px">Bora, ${esc(displayName())}! 💪</div>
+ <div class="muted" style="font-size:13px">${esc(motivMsg())}</div></div>
+ <div class="seg" style="margin:12px 0 0">${PHASES.map(p=>`<button class="${curPhase()===p.key?'on':''}" onclick="goPhase('${p.key}')">${shortName(p.name)}</button>`).join('')}</div>
  <div class="wknav"><button class="wkbtn" ${w<=1?'disabled':''} onclick="chWeek(-1)">‹</button>
  <div class="wkmid"><div class="blood" style="font-weight:800;font-size:10px;text-transform:uppercase;letter-spacing:1px">${esc(wk.phaseName)}</div><div class="disp" style="font-size:20px">Semana ${wk.week} <span class="dim" style="font-family:Barlow;font-size:12px;text-transform:none">de 12</span></div></div>
  <button class="wkbtn" ${w>=TOTAL?'disabled':''} onclick="chWeek(1)">›</button></div>
@@ -245,7 +253,10 @@ function chartSVG(){const lifts=['squat','bench','deadlift'],col={squat:'#7aa2ff
  const leg=lifts.map(l=>`<span style="color:${col[l]};font-size:12px;font-weight:700;margin-right:12px">● ${LIFTLBL[l]}</span>`).join('');
  return `<div style="margin-bottom:6px">${leg}</div><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;background:var(--bg);border:1px solid var(--line);border-radius:12px"><text x="6" y="${p}" fill="#5d5d66" font-size="11">${fmt(max)}</text><text x="6" y="${H-p+4}" fill="#5d5d66" font-size="11">${fmt(min)}</text>${lines}</svg>`}
 function perfilView(){const o=S.profile.oneRm;
- let h=`<div class="top"><h1 class="disp" style="font-size:30px;margin:6px 0 0">Perfil</h1></div><p class="muted" style="margin:0 0 14px">aluno@demo.com</p>
+ let h=`<div class="top"><h1 class="disp" style="font-size:30px;margin:6px 0 0">Perfil</h1></div><p class="muted" style="margin:0 0 14px">${esc(S.profile.name||displayName())}${S.profile.age?' · '+S.profile.age+' anos':''}${S.email?' · '+esc(S.email):''}</p>
+ <div class="card" style="margin-bottom:14px"><div class="lbl">Seus dados</div>
+ <div class="row"><span style="font-weight:700">Nome</span><div style="display:flex;gap:8px"><input id="pf_name" value="${esc(S.profile.name||'')}" placeholder="Seu nome" style="width:140px"><button class="btnP" style="width:auto;padding:8px 12px;font-size:15px" onclick="saveProfileInfo()">Salvar</button></div></div>
+ <div class="row" style="margin-top:8px"><span style="font-weight:700">Idade</span><input id="pf_age" inputmode="numeric" value="${S.profile.age||''}" placeholder="anos" style="width:96px;text-align:right"></div></div>
  <div class="card" style="margin-bottom:14px"><div class="lbl">Seu 1RM atual</div>
  ${['squat','bench','deadlift'].map(l=>`<div class="row"><span style="font-weight:700">${LIFTLBL[l]}</span><div style="display:flex;gap:8px"><input id="pf_${l}" inputmode="decimal" value="${o[l]||''}" placeholder="kg" style="width:96px;text-align:right"><button class="btnP" style="width:auto;padding:8px 12px;font-size:15px" onclick="saveRm('${l}')">Salvar</button></div></div>`).join('')}</div>
  <div class="card" style="margin-bottom:14px"><div class="lbl">Programa atual</div><div class="seg" style="margin:0">${PHASES.map(p=>`<button class="${curPhase()===p.key?'on':''}" onclick="goPhase('${p.key}')">${shortName(p.name)}</button>`).join('')}</div></div> <div class="card" style="margin-bottom:14px"><div class="lbl">Evolução do 1RM</div>${chartSVG()}</div>
@@ -253,7 +264,9 @@ function perfilView(){const o=S.profile.oneRm;
  <button onclick="resetDemo()" style="background:none;border:none;color:var(--dim);width:100%;margin-top:12px;text-decoration:underline;font-size:12px">Reiniciar demo (apaga os dados)</button>`;
  return h;
 }
-function saveRm(l){const v=parseFloat((document.getElementById('pf_'+l).value||'').replace(',','.'));if(!v){alert('Informe um valor.');return}setOneRm(l,v);render()}function logout(){S.session=false;persist();render()}
+function saveRm(l){const v=parseFloat((document.getElementById('pf_'+l).value||'').replace(',','.'));if(!v){alert('Informe um valor.');return}setOneRm(l,v);render()}
+function saveProfileInfo(){const n=(document.getElementById('pf_name').value||'').trim();const a=parseInt(document.getElementById('pf_age').value,10);S.profile.name=n;S.profile.age=a>0?a:null;persist();render()}
+function logout(){S.session=false;persist();render()}
 function resetDemo(){['session','profile','history','sessions','dione'].forEach(k=>localStorage.removeItem(K+k));S.session=false;S.profile={rounding:2.5,currentWeek:1,oneRm:{},sex:'m'};S.history=[];S.sessions={};S.dione='';S.obVals={};S.estOpen=false;S.tab='treino';S.techCat='principais';S.openDay=null;render();window.scrollTo(0,0)}
 
 /* ---------- SHELL ---------- */
@@ -290,6 +303,7 @@ async function entrar(){
 async function boot(){
   const { data:{ session } } = await SUPA.auth.getSession();
   if(!session){ document.getElementById('app').innerHTML = accessView(); return; }
+  S.email = (session.user && session.user.email) || '';
   if(!S.session){ S.session=true; persist(); }
   render();
 }
