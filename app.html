@@ -260,8 +260,7 @@ function perfilView(){const o=S.profile.oneRm;
  <div class="card" style="margin-bottom:14px"><div class="lbl">Seu 1RM atual</div>
  ${['squat','bench','deadlift'].map(l=>`<div class="row"><span style="font-weight:700">${LIFTLBL[l]}</span><div style="display:flex;gap:8px"><input id="pf_${l}" inputmode="decimal" value="${o[l]||''}" placeholder="kg" style="width:96px;text-align:right"><button class="btnP" style="width:auto;padding:8px 12px;font-size:15px" onclick="saveRm('${l}')">Salvar</button></div></div>`).join('')}</div>
  <div class="card" style="margin-bottom:14px"><div class="lbl">Programa atual</div><div class="seg" style="margin:0">${PHASES.map(p=>`<button class="${curPhase()===p.key?'on':''}" onclick="goPhase('${p.key}')">${shortName(p.name)}</button>`).join('')}</div></div> <div class="card" style="margin-bottom:14px"><div class="lbl">Evolução do 1RM</div>${chartSVG()}</div>
- <button class="btnG" onclick="logout()">Sair</button>
- <button onclick="resetDemo()" style="background:none;border:none;color:var(--dim);width:100%;margin-top:12px;text-decoration:underline;font-size:12px">Reiniciar demo (apaga os dados)</button>`;
+ <button class="btnG" onclick="logout()">Sair</button>`;
  return h;
 }
 function saveRm(l){const v=parseFloat((document.getElementById('pf_'+l).value||'').replace(',','.'));if(!v){alert('Informe um valor.');return}setOneRm(l,v);render()}

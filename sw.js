@@ -1,4 +1,4 @@
-const CACHE='dione-pl-v20';
+const CACHE='dione-pl-v21';
 const SHELL=['./','./index.html','./app.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>Promise.allSettled(SHELL.map(u=>c.add(u)))).then(()=>self.skipWaiting()))});
 self.addEventListener('activate',e=>{e.waitUntil(
